@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LearnPath – House of Edtech Fullstack Assignment
+
+A full-stack **Learning Path Manager** built with **Next.js 16**, **TypeScript**, **PostgreSQL** (Prisma), and **Tailwind CSS**. Educators can create courses, organize them into modules, and add lessons with full CRUD and authentication.
+
+## Tech Stack
+
+- **Frontend / Backend:** Next.js 16 (App Router), React 19, TypeScript
+- **Database:** PostgreSQL with Prisma ORM
+- **Auth:** NextAuth.js v5 (JWT, credentials)
+- **Validation:** Zod (input sanitization, length limits, regex for slug)
+- **Styling:** Tailwind CSS v4
+
+## Features
+
+- **Authentication & authorization:** Register, login, JWT session. Routes protected by middleware; API checks `userId` on all course/module/lesson mutations.
+- **CRUD:** Courses (title, description, slug, published), Modules (title, order), Lessons (title, content, order). Create, read, update, delete with ownership checks.
+- **Data validation & security:** Zod schemas on all API inputs; trimmed strings, max lengths, slug regex; password strength rules; bcrypt hashing.
+- **UI:** Responsive layout, focus-visible outlines, semantic HTML, ARIA where needed. Footer includes candidate name, GitHub, and LinkedIn (placeholders to be replaced).
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 20.9+
+- PostgreSQL (local or hosted, e.g. [Neon](https://neon.tech), [Supabase](https://supabase.com))
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone and install:
+   ```bash
+   git clone <your-repo-url>
+   cd edtech
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env`:
+   - `DATABASE_URL` – PostgreSQL connection string
+   - `AUTH_SECRET` – e.g. `openssl rand -base64 32`
 
-## Learn More
+3. Database:
+   ```bash
+   npm run db:push
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. Run:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000). Register, then create courses, modules, and lessons.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` – Development server
+- `npm run build` – Production build
+- `npm run start` – Start production server
+- `npm run lint` – ESLint
+- `npm run db:push` – Push Prisma schema to DB
+- `npm run db:studio` – Open Prisma Studio
 
-## Deploy on Vercel
+## Deployment (e.g. Vercel)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push to GitHub and import the repo in Vercel.
+2. Set env vars: `DATABASE_URL`, `AUTH_SECRET`.
+3. Use a hosted Postgres (Neon, Supabase, etc.) and ensure Prisma runs in the build (e.g. `postinstall: prisma generate` is in `package.json`).
+4. Deploy; Vercel will run `next build` and deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR:
+
+- Checkout, Node 20, cache `node_modules`
+- `npm ci`, `npx prisma generate`
+- `npm run lint`, `npm run build`
+
+No DB in CI; build and type-check only. For E2E you could add a job with a service container or hosted DB.
+
+## Real-World Considerations
+
+- **Scalability:** Stateless API; DB connection pooling via Prisma; consider read replicas and caching (e.g. React cache, unstable_cache) for heavy read paths.
+- **Error handling:** API routes return appropriate status codes and JSON errors; validation errors surfaced in UI; avoid leaking stack traces in production.
+- **Security:** Auth on every mutation; input validation and sanitization (Zod); parameterized queries (Prisma); HTTPS in production; secure cookies for session; rate limiting and CSRF recommended for production.
+- **Accessibility:** Semantic markup, labels, focus-visible styles, and keyboard-friendly controls.
+
+## Submission (House of Edtech)
+
+- **GitHub:** Share the repository link.
+- **Live deployment:** Deploy to Vercel (or Netlify) and share the URL.
+- **Footer:** Update `src/components/Footer.tsx` with your **name**, **GitHub profile URL**, and **LinkedIn profile URL**.
+
+## License
+
+MIT.
